@@ -9,10 +9,11 @@ const __dirname = path.dirname(__filename);
 const isWindows = process.platform === 'win32';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
-// In cloud/production environments (Render/Railway/Docker/Heroku), start the production server directly
+// In cloud/production environments (Vercel/Render/Railway/Docker/Heroku), start the production server directly
 const isCloudOrProd =
   process.env.NODE_ENV === 'production' ||
   Boolean(process.env.RENDER) ||
+  Boolean(process.env.VERCEL) ||
   Boolean(process.env.PORT) ||
   Boolean(process.env.CI);
 
