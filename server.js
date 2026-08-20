@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import app from './app.js';
 
@@ -8,8 +9,11 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 8000;
 
-// Static Frontend Serving & SPA Fallback (Production)
-const frontendDist = path.join(__dirname, 'frontend', 'dist');
+// Support both root dist and frontend/dist
+const rootDist = path.join(__dirname, 'dist');
+const subDist = path.join(__dirname, 'frontend', 'dist');
+const frontendDist = fs.existsSync(rootDist) ? rootDist : subDist;
+
 app.use(express.static(frontendDist));
 
 app.use((req, res) => {
