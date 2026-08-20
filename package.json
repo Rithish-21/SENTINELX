@@ -7,7 +7,7 @@
     "frontend"
   ],
   "scripts": {
-    "start": "node run_sentinelx.mjs",
+    "start": "node server.js",
     "dev": "node run_sentinelx.mjs",
     "dev:all": "node run_sentinelx.mjs",
     "dev:frontend": "npm run dev --workspace=frontend",
@@ -15,5 +15,9 @@
     "build": "npm run build --workspace=frontend",
     "lint": "npm run lint --workspace=frontend",
     "preview": "npm run preview --workspace=frontend"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
   }
 }

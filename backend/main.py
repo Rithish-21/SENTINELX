@@ -115,6 +115,16 @@ class SimulateChainRequest(BaseModel):
 # Health & General
 # =========================================================================
 
+@app.get("/")
+def root():
+    return {
+        "service": "SentinelX AI Cyber Defense Platform",
+        "status": "ONLINE",
+        "version": "2.0.0",
+        "docs": "/docs",
+    }
+
+
 @app.get("/health")
 def health_check():
     return {
