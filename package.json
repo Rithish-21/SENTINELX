@@ -1,0 +1,19 @@
+{
+  "name": "sentinelx",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "start": "node run_sentinelx.mjs",
+    "dev": "node run_sentinelx.mjs",
+    "dev:all": "node run_sentinelx.mjs",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "\"C:\\Users\\Rithish A\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -m uvicorn main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload",
+    "build": "npm run build --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend",
+    "preview": "npm run preview --workspace=frontend"
+  }
+}
