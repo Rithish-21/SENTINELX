@@ -9,9 +9,15 @@ const __dirname = path.dirname(__filename);
 const isWindows = process.platform === 'win32';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
-// In cloud/production environments (like Render), start the production server directly
-if (process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.PORT) {
-  console.log('🚀 [Production] Launching SentinelX Unified Server (Render/Cloud)...');
+// In cloud/production environments (Render/Railway/Docker/Heroku), start the production server directly
+const isCloudOrProd =
+  process.env.NODE_ENV === 'production' ||
+  Boolean(process.env.RENDER) ||
+  Boolean(process.env.PORT) ||
+  Boolean(process.env.CI);
+
+if (isCloudOrProd) {
+  console.log('🚀 [Production] Launching SentinelX Unified Server on Render/Cloud...');
   const serverProcess = spawn('node', ['server.js'], {
     cwd: __dirname,
     stdio: 'inherit',
@@ -29,20 +35,26 @@ if (process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.P
   const pythonBin = hasWinPython ? winPython : (isWindows ? 'python' : 'python3');
 
   console.log('🚀 [Backend] Launching Defense Engine on http://127.0.0.1:8000...');
-  const backendProcess = spawn(
-    pythonBin,
-    ['-m', 'uvicorn', 'main:app', '--host', '127.0.0.1', '--port', '8000', '--reload'],
-    {
-      cwd: path.join(__dirname, 'backend'),
-      shell: false,
-      stdio: 'inherit',
-    }
-  );
+  let backendProcess;
+  try {
+    backendProcess = spawn(
+      pythonBin,
+      ['-m', 'uvicorn', 'main:app', '--host', '127.0.0.1', '--port', '8000', '--reload'],
+      {
+        cwd: path.join(__dirname, 'backend'),
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
 
-  backendProcess.on('error', () => {
-    console.log('⚠️ Python not available, falling back to unified Node defense server...');
+    backendProcess.on('error', () => {
+      console.log('⚠️ Python backend not found or failed, falling back to unified Node defense server...');
+      spawn('node', ['server.js'], { cwd: __dirname, stdio: 'inherit' });
+    });
+  } catch {
+    console.log('⚠️ Python not available, launching unified Node defense server...');
     spawn('node', ['server.js'], { cwd: __dirname, stdio: 'inherit' });
-  });
+  }
 
   console.log('⚡ [Frontend] Launching Vite Dashboard on http://localhost:5173...');
   const frontendProcess = spawn(npmCmd, ['run', 'dev', '--workspace=frontend'], {
@@ -57,11 +69,12 @@ if (process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.P
 
   const cleanup = () => {
     console.log('\n🛑 Shutting down processes...');
-    backendProcess.kill();
-    frontendProcess.kill();
+    if (backendProcess) backendProcess.kill();
+    if (frontendProcess) frontendProcess.kill();
     process.exit();
   };
 
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
 }
+
